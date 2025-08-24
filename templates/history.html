@@ -1,0 +1,91 @@
+{% extends "layout.html" %} {% block title %}Analysis History{% endblock %} {%
+block content %}
+<div class="bg-white rounded-lg shadow-xl p-8">
+  <h2 class="text-2xl font-bold mb-6 text-gray-800">Analysis History</h2>
+
+  {% if history %}
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white">
+      <thead class="bg-gray-200">
+        <tr>
+          <th
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+          >
+            Date & Time
+          </th>
+          <th
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+          >
+            Image
+          </th>
+          <th
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+          >
+            Analysis Type
+          </th>
+          <th
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+          >
+            Result
+          </th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        {% for item in history %}
+        <tr class="align-top">
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            {{ item.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <img
+              src="{{ url_for('static', filename='uploads/' + item.image_filename) }}"
+              alt="Analyzed Image"
+              class="h-16 w-16 object-cover rounded shadow-sm"
+            />
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            <span
+              class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if item.analysis_type == 'YOLO' %} bg-indigo-100 text-indigo-800 {% else %} bg-green-100 text-green-800 {% endif %}"
+            >
+              {{ item.analysis_type }}
+            </span>
+          </td>
+          <td class="px-6 py-4 text-sm text-gray-700" style="min-width: 300px">
+            {% if item.analysis_type == 'YOLO' %}
+            <p class="font-semibold">Detected Tools:</p>
+            <span>{{ item.analysis_result }}</span>
+            <img
+              src="{{ url_for('static', filename='uploads/' + item.result_image_filename) }}"
+              alt="YOLO Result Image"
+              class="h-16 w-16 object-cover rounded shadow-sm mt-2"
+            />
+            {% elif item.analysis_type == 'Gemini' and item.parsed_result %}
+            <p class="font-semibold text-gray-900">
+              {{ item.parsed_result.instrument_name }}
+            </p>
+            <p class="text-xs">{{ item.parsed_result.usage }}</p>
+            {% else %}
+            <p>No result available.</p>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-10">
+    <p class="text-gray-500">
+      You have no analysis history yet. Go to the
+      <a href="/app" class="text-indigo-600 hover:text-indigo-800">main page</a>
+      to analyze an image.
+    </p>
+  </div>
+  {% endif %}
+  <div class="mt-8 text-center">
+    <a href="/app" class="text-indigo-600 hover:text-indigo-800 font-semibold"
+      >&laquo; Back to Analysis</a
+    >
+  </div>
+</div>
+{% endblock %}

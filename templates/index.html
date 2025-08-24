@@ -1,0 +1,499 @@
+{% extends "layout.html" %} {% block title %}Surgical Assistance Tool{% endblock
+%} {% block content %}
+<div class="bg-white rounded-lg shadow-xl p-8">
+  <h2 class="text-2xl font-bold mb-4 text-gray-800 text-center">
+    Upload an Image for Analysis
+  </h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %} {% for category, message in messages %}
+  <div
+    class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+    role="alert"
+  >
+    <strong class="font-bold">Error:</strong>
+    <span class="block sm:inline">{{ message }}</span>
+  </div>
+  {% endfor %} {% endif %} {% endwith %}
+
+  <!-- Tab Buttons -->
+  <div class="mb-4 border-b border-gray-200">
+    <ul
+      class="flex flex-wrap -mb-px text-sm font-medium text-center"
+      id="analysisTabs"
+      role="tablist"
+    >
+      <li class="mr-2" role="presentation">
+        <button
+          class="inline-block p-4 border-b-2 rounded-t-lg"
+          id="yolo-tab"
+          type="button"
+          role="tab"
+          aria-controls="yolo-content"
+          aria-selected="true"
+        >
+          Object Detection
+        </button>
+      </li>
+      <li class="mr-2" role="presentation">
+        <button
+          class="inline-block p-4 border-b-2 rounded-t-lg"
+          id="gemini-tab"
+          type="button"
+          role="tab"
+          aria-controls="gemini-content"
+          aria-selected="false"
+        >
+          AI Analysis
+        </button>
+      </li>
+      <li role="presentation">
+        <button
+          class="inline-block p-4 border-b-2 rounded-t-lg"
+          id="live-camera-tab"
+          type="button"
+          role="tab"
+          aria-controls="live-camera-content"
+          aria-selected="false"
+        >
+          Live Camera Detection
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Tab Content -->
+  <div id="analysisTabsContent">
+    <!-- YOLO Analysis Form -->
+    <div
+      class="hidden"
+      id="yolo-content"
+      role="tabpanel"
+      aria-labelledby="yolo-tab"
+    >
+      <p class="text-center text-gray-500 mb-4">
+        Detect multiple known surgical tools in an image.
+      </p>
+      <form
+        action="/upload"
+        method="post"
+        enctype="multipart/form-data"
+        class="space-y-6"
+      >
+        <div>
+          <label
+            for="file-upload-yolo"
+            class="block text-sm font-medium text-gray-700"
+            >Image file</label
+          >
+          <div
+            class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"
+          >
+            <div class="space-y-1 text-center">
+              <svg
+                class="mx-auto h-12 w-12 text-gray-400"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 48 48"
+                aria-hidden="true"
+              >
+                <path
+                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <div class="flex text-sm text-gray-600">
+                <label
+                  for="file-upload-yolo"
+                  class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                  ><span>Upload a file</span
+                  ><input
+                    id="file-upload-yolo"
+                    name="file"
+                    type="file"
+                    class="sr-only"
+                    required
+                /></label>
+                <p class="pl-1">or drag and drop</p>
+              </div>
+              <p class="text-xs text-gray-500">PNG, JPG, JPEG up to 16MB</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <button
+            type="submit"
+            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Analyze with YOLO
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Gemini Analysis Form -->
+    <div
+      class="hidden"
+      id="gemini-content"
+      role="tabpanel"
+      aria-labelledby="gemini-tab"
+    >
+      <p class="text-center text-gray-500 mb-4">
+        Identify a single surgical instrument and get a detailed description.
+      </p>
+      <form
+        action="/gemini_upload"
+        method="post"
+        enctype="multipart/form-data"
+        class="space-y-6"
+      >
+        <div>
+          <label
+            for="file-upload-gemini"
+            class="block text-sm font-medium text-gray-700"
+            >Image file</label
+          >
+          <div
+            class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-green-300 border-dashed rounded-md"
+          >
+            <div class="space-y-1 text-center">
+              <svg
+                class="mx-auto h-12 w-12 text-gray-400"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 48 48"
+                aria-hidden="true"
+              >
+                <path
+                  d="M14 2h20a2 2 0 0 1 2 2v20a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M2 14h10v20H2a2 2 0 0 1-2-2V16a2 2 0 0 1 2-2zM36 14h10v20H36a2 2 0 0 1-2-2V16a2 2 0 0 1 2-2z"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <div class="flex text-sm text-gray-600">
+                <label
+                  for="file-upload-gemini"
+                  class="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-green-500"
+                  ><span>Upload a file</span
+                  ><input
+                    id="file-upload-gemini"
+                    name="file"
+                    type="file"
+                    class="sr-only"
+                    required
+                /></label>
+                <p class="pl-1">or drag and drop</p>
+              </div>
+              <p class="text-xs text-gray-500">PNG, JPG, JPEG up to 16MB</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <button
+            type="submit"
+            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            Analyze with Gemini
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Live Camera Detection Section -->
+    <div
+      class="hidden"
+      id="live-camera-content"
+      role="tabpanel"
+      aria-labelledby="live-camera-tab"
+    >
+      <p class="text-center text-gray-500 mb-4">
+        Detect surgical tools in real-time using your camera.
+      </p>
+      <div class="space-y-4 text-center">
+        <video
+          id="cameraFeed"
+          class="w-full max-w-xl mx-auto rounded-lg shadow-lg border border-gray-300"
+          autoplay
+          playsinline
+          muted
+        ></video>
+        <canvas id="hiddenCanvas" class="hidden"></canvas>
+        <img
+          id="processedImage"
+          class="w-full max-w-xl mx-auto rounded-lg shadow-lg border border-gray-300 mt-4"
+          style="display: none"
+        />
+
+        <div class="flex justify-center space-x-4 mt-4">
+          <button
+            id="startButton"
+            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
+          >
+            Start Camera
+          </button>
+          <button
+            id="stopButton"
+            class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
+            disabled
+          >
+            Stop Camera
+          </button>
+        </div>
+
+        <div id="loadingIndicator" class="mt-4 hidden">
+          <div
+            class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"
+          ></div>
+          <p class="text-gray-600 mt-2">Analyzing frame...</p>
+        </div>
+
+        <div id="detectedToolsDisplay" class="mt-6 text-left">
+          <h3 class="text-xl font-semibold mb-2 text-gray-800">
+            Detected Tools:
+          </h3>
+          <div id="toolList" class="space-y-2">
+            <p class="text-gray-500" id="noDetectionMessage">
+              No tools detected yet.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Global declarations for stream and intervalId
+  let stream = null;
+  let intervalId = null;
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const tabs = [
+      {
+        id: "yolo",
+        trigger: document.getElementById("yolo-tab"),
+        content: document.getElementById("yolo-content"),
+      },
+      {
+        id: "gemini",
+        trigger: document.getElementById("gemini-tab"),
+        content: document.getElementById("gemini-content"),
+      },
+      {
+        id: "live-camera",
+        trigger: document.getElementById("live-camera-tab"),
+        content: document.getElementById("live-camera-content"),
+      },
+    ];
+    const activeClasses = ["border-indigo-600", "text-indigo-600"];
+    const inactiveClasses = [
+      "border-transparent",
+      "text-gray-500",
+      "hover:text-gray-600",
+      "hover:border-gray-300",
+    ];
+
+    function showTab(tabId) {
+      tabs.forEach((tab) => {
+        const isActive = tab.id === tabId;
+        tab.content.classList.toggle("hidden", !isActive);
+        tab.trigger.setAttribute("aria-selected", isActive);
+        if (isActive) {
+          tab.trigger.classList.add(...activeClasses);
+          tab.trigger.classList.remove(...inactiveClasses);
+        } else {
+          tab.trigger.classList.remove(...activeClasses);
+          tab.trigger.classList.add(...inactiveClasses);
+        }
+      });
+
+      // Stop camera only if switching away from live camera tab AND stream is active
+      if (tabId !== "live-camera" && stream) {
+        console.log("Switching tab, stopping camera.");
+        stopCamera();
+      }
+    }
+
+    tabs.forEach((tab) => {
+      tab.trigger.addEventListener("click", () => showTab(tab.id));
+    });
+
+    // Show the default tab
+    showTab("yolo");
+
+    // --- Live Camera Logic ---
+    const video = document.getElementById("cameraFeed");
+    const canvas = document.getElementById("hiddenCanvas");
+    const processedImage = document.getElementById("processedImage");
+    const startButton = document.getElementById("startButton");
+    const stopButton = document.getElementById("stopButton");
+    const loadingIndicator = document.getElementById("loadingIndicator");
+    const toolList = document.getElementById("toolList");
+    const noDetectionMessage = document.getElementById("noDetectionMessage");
+
+    const frameRate = 300; // Milliseconds per frame (e.g., 300ms = ~3.3 FPS)
+
+    async function startCamera() {
+      console.log("Start Camera button clicked.");
+      if (stream) {
+        console.log("Camera already running.");
+        return;
+      }
+
+      try {
+        console.log("Requesting camera access...");
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        video.style.display = "block";
+        processedImage.style.display = "none";
+        startButton.disabled = true;
+        stopButton.disabled = false;
+        toolList.innerHTML = "";
+        noDetectionMessage.style.display = "block";
+        console.log("Camera stream obtained. Attempting to play video...");
+
+        // Play the video and then start capturing frames
+        video
+          .play()
+          .then(() => {
+            console.log(
+              "Video is playing. Setting canvas dimensions and starting frame capture."
+            );
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            intervalId = setInterval(captureAndSendFrame, frameRate);
+            console.log("Started capturing frames.");
+          })
+          .catch((playErr) => {
+            console.error("Error playing video:", playErr);
+            alert(
+              "Could not play video stream. Error: " +
+                playErr.name +
+                " - " +
+                playErr.message
+            );
+            stopCamera(); // Stop camera if playback fails
+          });
+      } catch (err) {
+        console.error("Error accessing camera: ", err);
+        alert(
+          "Could not access camera. Please ensure you have a webcam and have granted permission. Error: " +
+            err.name +
+            " - " +
+            err.message
+        );
+        startButton.disabled = false;
+        stopButton.disabled = true;
+      }
+    }
+
+    function stopCamera() {
+      console.log("Stop Camera button clicked.");
+      if (stream) {
+        console.log("Stopping camera tracks.");
+        stream.getTracks().forEach((track) => track.stop());
+        video.srcObject = null;
+        stream = null;
+      }
+      if (intervalId) {
+        console.log("Clearing frame capture interval.");
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+      video.style.display = "none";
+      processedImage.style.display = "none";
+      startButton.disabled = false;
+      stopButton.disabled = true;
+      loadingIndicator.classList.add("hidden");
+      toolList.innerHTML = "";
+      noDetectionMessage.style.display = "block";
+      console.log("Camera stopped and UI reset.");
+    }
+
+    async function captureAndSendFrame() {
+      // Check if video is actually playing before drawing
+      if (
+        video.paused ||
+        video.ended ||
+        video.readyState < video.HAVE_ENOUGH_DATA
+      ) {
+        console.log("Video not ready for capture. Skipping frame.");
+        return;
+      }
+
+      const context = canvas.getContext("2d");
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = canvas.toDataURL("image/jpeg", 0.7);
+
+      loadingIndicator.classList.remove("hidden");
+      video.style.display = "none";
+      processedImage.style.display = "block";
+      console.log("Capturing frame and sending to backend...");
+
+      try {
+        const response = await fetch("/live_camera_feed", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ image_data: imageData }),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(
+            `HTTP error! status: ${response.status}, message: ${errorText}`
+          );
+        }
+
+        const data = await response.json();
+        console.log("Backend response received:", data);
+
+        if (data.processed_image_data) {
+          processedImage.src = data.processed_image_data;
+        }
+
+        toolList.innerHTML = "";
+        if (data.detected_tools && data.detected_tools.length > 0) {
+          noDetectionMessage.style.display = "none";
+          data.detected_tools.forEach((tool) => {
+            const toolDiv = document.createElement("div");
+            toolDiv.className =
+              "p-3 bg-gray-50 rounded-lg border border-gray-200";
+            toolDiv.innerHTML = `
+                <h4 class="font-bold text-md text-gray-900">${tool.name}</h4>
+                <p class="text-gray-600 text-sm">${tool.usage}</p>
+              `;
+            toolList.appendChild(toolDiv);
+          });
+        } else {
+          noDetectionMessage.style.display = "block";
+        }
+      } catch (error) {
+        console.error("Error sending frame to backend:", error);
+        video.style.display = "block";
+        processedImage.style.display = "none";
+        toolList.innerHTML = "";
+        noDetectionMessage.style.display = "block";
+        noDetectionMessage.textContent = "Error during detection.";
+        alert("Error during live detection: " + error.message);
+      } finally {
+        loadingIndicator.classList.add("hidden");
+        console.log("Frame processing complete.");
+      }
+    }
+
+    startButton.addEventListener("click", startCamera);
+    stopButton.addEventListener("click", stopCamera);
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 4
+names: ["0", "1", "2", "3"]
+
+roboflow:
+  workspace: reto-lvy74
+  project: surgical-tools-bxgxg
+  version: 1
+  license: Public Domain
+  url: https://universe.roboflow.com/reto-lvy74/surgical-tools-bxgxg/dataset/1

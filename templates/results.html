@@ -1,0 +1,36 @@
+{% extends "layout.html" %} {% block title %}Detection Results{% endblock %} {%
+block content %}
+<div class="bg-white rounded-lg shadow-xl p-8">
+  <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">
+    Detection Results
+  </h2>
+  <div class="mb-6">
+    <img
+      src="{{ url_for('static', filename=image_path) }}"
+      alt="Detected Image"
+      class="mx-auto rounded-lg shadow-lg"
+    />
+  </div>
+
+  <div class="mt-8">
+    <h3 class="text-xl font-semibold mb-4 text-gray-800">
+      Detected Tools and Usage:
+    </h3>
+    <div class="space-y-4">
+      {% for result in results %}
+      <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <h4 class="font-bold text-lg text-gray-900">{{ result.name }}</h4>
+        <p class="text-gray-600">{{ result.usage }}</p>
+      </div>
+      {% else %}
+      <p class="text-gray-500">No tools were detected in the image.</p>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="mt-8 text-center">
+    <a href="/app" class="text-indigo-600 hover:text-indigo-800 font-semibold"
+      >Analyze another image</a
+    >
+  </div>
+</div>
+{% endblock %}

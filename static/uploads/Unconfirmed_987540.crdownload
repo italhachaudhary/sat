@@ -1,0 +1,88 @@
+import cv2
+import numpy as np
+from ultralytics import YOLO
+
+class SurgicalAssistant:
+    def __init__(self):
+        # Load trained model for metallic instrument detection
+        self.model = YOLO('surgical_instruments_yolov8.pt')
+        self.class_names = ['Scalpel', 'Forceps', 'Retractor', 'Clamp', 'Scissors']
+        
+    def detect_instruments(self, frame):
+        """Detect only metallic surgical instruments in a frame"""
+        results = self.model(frame, verbose=False)
+        
+        # Process detections
+        detections = []
+        for result in results:
+            for box in result.boxes:
+                # Confidence threshold
+                if box.conf[0] < 0.7:  
+                    continue
+                    
+                cls_id = int(box.cls[0])
+                cls_name = self.class_names[cls_id]
+                
+                # Get bounding box coordinates
+                x1, y1, x2, y2 = map(int, box.xyxy[0])
+                
+                detections.append({
+                    'class': cls_name,
+                    'confidence': float(box.conf[0]),
+                    'bbox': (x1, y1, x2, y2)
+                })
+                
+        return detections
+
+    def visualize_results(self, frame, detections):
+        """Draw bounding boxes and labels for metallic instruments only"""
+        output_frame = frame.copy()
+        
+        for det in detections:
+            x1, y1, x2, y2 = det['bbox']
+            label = f"{det['class']} {det['confidence']:.2f}"
+            
+            # Draw metallic instrument bounding box
+            cv2.rectangle(output_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.putText(output_frame, label, (x1, y1 - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+        
+        # IMPORTANT RESTRICTION: Cannot detect non-metallic objects
+        cv2.putText(output_frame, "RESTRICTION: Non-metallic objects not detectable", 
+                   (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+        
+        return output_frame
+
+    def process_video_stream(self, source=0):
+        """Process live video stream from camera"""
+        cap = cv2.VideoCapture(source)
+        if not cap.isOpened():
+            raise IOError("Cannot open video source")
+        
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+                
+            # Detect metallic instruments
+            detections = self.detect_instruments(frame)
+            
+            # Visualize results with restriction notice
+            output_frame = self.visualize_results(frame, detections)
+            
+            cv2.imshow('Surgical Assistance', output_frame)
+            
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+                
+        cap.release()
+        cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    assistant = SurgicalAssistant()
+    
+    # For live camera feed (use 0 for default camera)
+    assistant.process_video_stream(source=0)
+    
+    # For video file processing
+    # assistant.process_video_stream(source='surgery_recording.mp4')
