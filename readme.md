@@ -61,9 +61,50 @@ python app.py
 The app will be available at `http://127.0.0.1:5000/`.
 
 ## Usage
+
 - Upload an image via the web interface.
 - View detected instruments and results.
 - Access detection history for previous uploads.
+
+## API
+
+The SAT application provides a simple REST API for integration and automation. Below are the main endpoints:
+
+### 1. `/predict` (POST)
+**Description:** Detects surgical instruments in an uploaded image.
+
+**Request:**
+   - Method: `POST`
+   - Content-Type: `multipart/form-data`
+   - Body: `file` (image file)
+
+**Response:**
+   - JSON object with detection results, including instrument names, bounding boxes, and confidence scores.
+
+**Example using `curl`:**
+```sh
+curl -X POST -F "file=@path/to/image.jpg" http://127.0.0.1:5000/predict
+```
+
+### 2. `/history` (GET)
+**Description:** Retrieves the detection history.
+
+**Request:**
+   - Method: `GET`
+
+**Response:**
+   - JSON array of previous detection results with timestamps and file names.
+
+### 3. `/` (GET)
+**Description:** Main web interface for uploading images and viewing results.
+
+**Request:**
+   - Method: `GET`
+
+**Response:**
+   - HTML page.
+
+## Model Training
 
 ## Model Training
 - Place your dataset in the `model_training/` directory.
