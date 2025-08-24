@@ -26,7 +26,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max upload size
 
 # --- Gemini API Configuration ---
 # IMPORTANT: Replace "YOUR_GEMINI_API_KEY_HERE" with your actual Google AI Studio API key.
-GEMINI_API_KEY = "AIzaSyDC7qaovVg624a9p7C30nMleGMIpEz1-EU" # Replace with your key
+GEMINI_API_KEY = "" # Replace with your key
 try:
     genai.configure(api_key=GEMINI_API_KEY)
     
@@ -64,8 +64,8 @@ class History(db.Model):
 # --- Google OAuth Configuration ---
 google = oauth.register(
     name='google',
-    client_id='461866721503-s8jlcln78e8j2t3806l9ra2b6cl3900t.apps.googleusercontent.com',
-    client_secret='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',
+    client_id='', # Your Google OAuth client ID
+    client_secret='', # Your Google OAuth client secret
     access_token_url='https://accounts.google.com/o/oauth2/token',
     access_token_params=None,
     authorize_url='https://accounts.google.com/o/oauth2/auth',
